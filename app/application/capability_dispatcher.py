@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from app.application.capability import Capability
 from app.application.capability_registry import CapabilityRegistry
 from app.application.capability_result import CapabilityResult
 from app.application.execution_context import ExecutionContext

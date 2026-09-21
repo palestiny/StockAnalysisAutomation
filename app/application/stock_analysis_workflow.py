@@ -1,19 +1,17 @@
 from __future__ import annotations
 
-from decimal import Decimal
-from typing import Protocol
 from uuid import UUID
 
 from app.application.capability import Capability
 from app.application.capability_dispatcher import CapabilityDispatcher
 from app.application.capability_registry import CapabilityRegistry
 from app.application.condition_evaluator import ConditionEvaluator
-from app.application.execution_context import ExecutionContext
 from app.application.execute_workflow_step import ExecuteWorkflowStep
+from app.application.execution_context import ExecutionContext
 from app.application.start_workflow_execution import StartWorkflowExecution
+from app.domain.execution import Execution
 from app.domain.repositories import ExecutionRepository, WorkflowRepository
-from app.domain.stock_analysis import Watchlist, EmailConfig, PushConfig
-
+from app.domain.stock_analysis import EmailConfig, PushConfig, Watchlist
 
 MARKET_DATA_ACQUIRE_CAPABILITY_ID = "market_data_acquire"
 TECHNICAL_ANALYSIS_CAPABILITY_ID = "technical_analysis"
@@ -60,10 +58,10 @@ class StockAnalysisWorkflowComposition:
             ConditionEvaluator(),
         )
 
-    def start(self, workflow_id: UUID):
+    def start(self, workflow_id: UUID) -> Execution:
         return self._start.execute(workflow_id)
 
-    def execute_step(self, execution_id: UUID, context: ExecutionContext):
+    def execute_step(self, execution_id: UUID, context: ExecutionContext) -> Execution:
         return self._execute_step.execute(execution_id, context)
 
 
@@ -73,7 +71,7 @@ def create_daily_analysis_workflow(
     push_config: PushConfig | None = None,
 ) -> dict:
     """Create workflow definition for daily analysis (runs after market close)."""
-    from app.domain.workflow import Workflow, WorkflowStep, Trigger, WorkflowParameter
+    from app.domain.workflow import Trigger, WorkflowParameter, WorkflowStep
 
     steps = [
         WorkflowStep.create(
@@ -131,7 +129,7 @@ def create_morning_delivery_workflow(
     push_config: PushConfig | None = None,
 ) -> dict:
     """Create workflow definition for morning delivery (runs before market open)."""
-    from app.domain.workflow import Workflow, WorkflowStep, Trigger, WorkflowParameter
+    from app.domain.workflow import Trigger, WorkflowParameter, WorkflowStep
 
     steps = []
 

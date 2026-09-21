@@ -21,7 +21,7 @@ class Trigger:
             raise ValueError("Trigger event_type cannot be empty")
 
     @classmethod
-    def create(cls, event_type: str) -> "Trigger":
+    def create(cls, event_type: str) -> Trigger:
         return cls(event_type=event_type)
 
 
@@ -45,7 +45,7 @@ class Condition:
         left_operand: str,
         operator: str,
         right_operand: object,
-    ) -> "Condition":
+    ) -> Condition:
         return cls(
             left_operand=left_operand,
             operator=operator,
@@ -65,7 +65,7 @@ class WorkflowParameter:
             raise ValueError("Unsupported workflow parameter type")
 
     @classmethod
-    def create(cls, name: str, type: str) -> "WorkflowParameter":
+    def create(cls, name: str, type: str) -> WorkflowParameter:
         return cls(name=name.strip(), type=type.strip())
 
 
@@ -90,7 +90,7 @@ class WorkflowStep:
         name: str,
         capability: str,
         condition: Condition | None = None,
-    ) -> "WorkflowStep":
+    ) -> WorkflowStep:
         return cls(
             id=uuid4(),
             name=name,
@@ -184,7 +184,7 @@ class Workflow:
         parameter_types: list[WorkflowParameter] | None = None,
         automation_domain: str | None = None,
         discovery_tags: list[str] | None = None,
-    ) -> "Workflow":
+    ) -> Workflow:
         return cls(
             id=uuid4(),
             name=name,

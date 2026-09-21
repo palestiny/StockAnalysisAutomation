@@ -7,7 +7,6 @@ from app.application.condition_evaluator import ConditionEvaluator
 from app.application.execution_context import ExecutionContext
 from app.domain.execution import Execution
 from app.domain.repositories import ExecutionRepository, WorkflowRepository
-from app.domain.workflow import Workflow, WorkflowStep
 
 
 class ExecuteWorkflowStep:

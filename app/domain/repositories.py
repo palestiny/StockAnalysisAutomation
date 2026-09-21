@@ -66,12 +66,15 @@ class ExecutionIdempotencyRepository(Protocol):
         ...
 
 
+from app.domain.execution_event import ExecutionEvent
+
+
 @runtime_checkable
 class ExecutionHistoryRepository(Protocol):
     """Append-only persistence boundary for execution lifecycle evidence."""
 
-    def append(self, event) -> None:
+    def append(self, event: ExecutionEvent) -> None:
         ...
 
-    def list(self, execution_id: UUID) -> tuple:
+    def list(self, execution_id: UUID) -> tuple[ExecutionEvent, ...]:
         ...

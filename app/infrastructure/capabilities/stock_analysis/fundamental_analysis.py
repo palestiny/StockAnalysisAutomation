@@ -7,9 +7,10 @@ from typing import Protocol
 from app.application.capability import Capability
 from app.application.capability_result import CapabilityResult
 from app.application.execution_context import ExecutionContext
-from app.domain.stock_analysis import StockSymbol, FundamentalMetrics
-from app.infrastructure.capabilities.stock_analysis.market_data_acquire import MarketDataAcquireResult
-
+from app.domain.stock_analysis import FundamentalMetrics, StockSymbol
+from app.infrastructure.capabilities.stock_analysis.market_data_acquire import (
+    MarketDataAcquireResult,
+)
 
 FUNDAMENTAL_ANALYSIS_CAPABILITY_ID = "fundamental_analysis"
 

@@ -10,7 +10,7 @@ from uuid import UUID, uuid4
 class StockSymbol(str):
     """Validated stock ticker symbol."""
 
-    def __new__(cls, value: str) -> "StockSymbol":
+    def __new__(cls, value: str) -> StockSymbol:
         if not isinstance(value, str):
             raise TypeError("StockSymbol must be a string")
         cleaned = value.strip().upper()
@@ -21,7 +21,7 @@ class StockSymbol(str):
         return super().__new__(cls, cleaned)
 
     @classmethod
-    def create(cls, value: str) -> "StockSymbol":
+    def create(cls, value: str) -> StockSymbol:
         return cls(value)
 
 
@@ -67,7 +67,7 @@ class PriceBar:
         close: Decimal,
         volume: int,
         adjusted_close: Decimal | None = None,
-    ) -> "PriceBar":
+    ) -> PriceBar:
         return cls(
             symbol=StockSymbol.create(symbol) if isinstance(symbol, str) else symbol,
             session_date=session_date,
@@ -117,7 +117,7 @@ class TechnicalIndicators:
         symbol: str | StockSymbol,
         as_of: date,
         **indicators: Decimal | None,
-    ) -> "TechnicalIndicators":
+    ) -> TechnicalIndicators:
         return cls(
             symbol=StockSymbol.create(symbol) if isinstance(symbol, str) else symbol,
             as_of=as_of,
@@ -160,7 +160,7 @@ class FundamentalMetrics:
         symbol: str | StockSymbol,
         as_of: date,
         **metrics: Decimal | None,
-    ) -> "FundamentalMetrics":
+    ) -> FundamentalMetrics:
         return cls(
             symbol=StockSymbol.create(symbol) if isinstance(symbol, str) else symbol,
             as_of=as_of,
@@ -200,7 +200,7 @@ class MLScore:
         probability_up: Decimal,
         model_version: str,
         features_hash: str,
-    ) -> "MLScore":
+    ) -> MLScore:
         return cls(
             symbol=StockSymbol.create(symbol) if isinstance(symbol, str) else symbol,
             as_of=as_of,
@@ -272,7 +272,7 @@ class Recommendation:
         technical_score: Decimal | None = None,
         fundamental_score: Decimal | None = None,
         ml_score: MLScore | None = None,
-    ) -> "Recommendation":
+    ) -> Recommendation:
         return cls(
             id=uuid4(),
             symbol=StockSymbol.create(symbol) if isinstance(symbol, str) else symbol,
@@ -296,7 +296,7 @@ class WatchlistEntry:
     symbol: StockSymbol
     enabled: bool = True
     min_confidence: Decimal = Decimal("0.6")
-    custom_params: dict[str, object] = None
+    custom_params: dict[str, object] | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.symbol, StockSymbol):
@@ -319,7 +319,7 @@ class WatchlistEntry:
         enabled: bool = True,
         min_confidence: Decimal = Decimal("0.6"),
         custom_params: dict[str, object] | None = None,
-    ) -> "WatchlistEntry":
+    ) -> WatchlistEntry:
         return cls(
             symbol=StockSymbol.create(symbol) if isinstance(symbol, str) else symbol,
             enabled=enabled,
@@ -358,7 +358,7 @@ class Watchlist:
         cls,
         name: str,
         entries: list[WatchlistEntry] | tuple[WatchlistEntry, ...] | None = None,
-    ) -> "Watchlist":
+    ) -> Watchlist:
         now = datetime.utcnow()
         return cls(
             id=uuid4(),
@@ -393,6 +393,8 @@ class EmailConfig:
             raise ValueError("from_email cannot be empty")
         if not isinstance(self.to_emails, tuple):
             raise TypeError("to_emails must be a tuple")
+        if len(self.to_emails) == 0:
+            raise ValueError("to_emails cannot be empty")
         if not all(isinstance(e, str) and e.strip() for e in self.to_emails):
             raise ValueError("to_emails must be non-empty strings")
 

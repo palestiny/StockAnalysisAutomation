@@ -8,16 +8,18 @@ from app.application.capability import Capability
 from app.application.capability_result import CapabilityResult
 from app.application.execution_context import ExecutionContext
 from app.domain.stock_analysis import (
-    StockSymbol,
-    TechnicalIndicators,
     MLScore,
     Recommendation,
     RecommendationAction,
+    StockSymbol,
+    TechnicalIndicators,
     Watchlist,
+    WatchlistEntry,
 )
-from app.infrastructure.capabilities.stock_analysis.market_data_acquire import MarketDataAcquireResult
 from app.infrastructure.capabilities.stock_analysis.fundamental_analysis import FundamentalScore
-
+from app.infrastructure.capabilities.stock_analysis.market_data_acquire import (
+    MarketDataAcquireResult,
+)
 
 RECOMMENDATION_GENERATION_CAPABILITY_ID = "recommendation_generation"
 
@@ -35,7 +37,7 @@ class RecommendationGenerator(Protocol):
     def generate(
         self,
         symbol: StockSymbol,
-        watchlist_entry,
+        watchlist_entry: WatchlistEntry,
         market_data: MarketDataAcquireResult,
         technical: TechnicalIndicators | None,
         fundamental: FundamentalScore | None,
@@ -84,7 +86,7 @@ class DefaultRecommendationGenerator:
     def generate(
         self,
         symbol: StockSymbol,
-        watchlist_entry,
+        watchlist_entry: WatchlistEntry,
         market_data: MarketDataAcquireResult,
         technical: TechnicalIndicators | None,
         fundamental: FundamentalScore | None,
@@ -165,11 +167,11 @@ class RecommendationGenerationCapability(Capability):
 
     def execute(self, context: ExecutionContext) -> CapabilityResult:
         try:
-            watchlist = context.get("watchlist")
-            market_data = context.get("market_data")
-            technical_indicators = context.get("technical_indicators")
-            fundamental_scores = context.get("fundamental_scores")
-            ml_scores = context.get("ml_scores")
+            watchlist: Watchlist = context.get("watchlist")  # type: ignore[assignment]
+            market_data: MarketDataAcquireResult = context.get("market_data")  # type: ignore[assignment]
+            technical_indicators: dict[StockSymbol, TechnicalIndicators] = context.get("technical_indicators")  # type: ignore[assignment]
+            fundamental_scores: dict[StockSymbol, FundamentalScore] = context.get("fundamental_scores")  # type: ignore[assignment]
+            ml_scores: dict[StockSymbol, MLScore] = context.get("ml_scores")  # type: ignore[assignment]
         except KeyError as e:
             return CapabilityResult.failure(f"Missing required context: {e}")
 
@@ -184,9 +186,9 @@ class RecommendationGenerationCapability(Capability):
                 continue
 
             symbol = entry.symbol
-            technical = technical_indicators.get(symbol) if technical_indicators else None
-            fundamental = fundamental_scores.get(symbol) if fundamental_scores else None
-            ml = ml_scores.get(symbol) if ml_scores else None
+            technical: TechnicalIndicators | None = technical_indicators.get(symbol) if technical_indicators else None
+            fundamental: FundamentalScore | None = fundamental_scores.get(symbol) if fundamental_scores else None
+            ml: MLScore | None = ml_scores.get(symbol) if ml_scores else None
 
             rec = self._generator.generate(
                 symbol=symbol,

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from uuid import UUID, uuid4
@@ -44,7 +44,7 @@ class Execution:
             raise TypeError("updated_at must be a datetime")
 
     @classmethod
-    def create(cls, workflow_id: UUID, attempt: int = 1) -> "Execution":
+    def create(cls, workflow_id: UUID, attempt: int = 1) -> Execution:
         now = datetime.utcnow()
         return cls(
             id=uuid4(),

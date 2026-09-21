@@ -8,10 +8,11 @@ from typing import Protocol
 from app.application.capability import Capability
 from app.application.capability_result import CapabilityResult
 from app.application.execution_context import ExecutionContext
-from app.domain.stock_analysis import StockSymbol, TechnicalIndicators, MLScore
-from app.infrastructure.capabilities.stock_analysis.market_data_acquire import MarketDataAcquireResult
+from app.domain.stock_analysis import MLScore, StockSymbol, TechnicalIndicators
 from app.infrastructure.capabilities.stock_analysis.fundamental_analysis import FundamentalScore
-
+from app.infrastructure.capabilities.stock_analysis.market_data_acquire import (
+    MarketDataAcquireResult,
+)
 
 ML_SCORING_CAPABILITY_ID = "ml_scoring"
 
@@ -108,9 +109,9 @@ class MLScoringCapability(Capability):
 
     def execute(self, context: ExecutionContext) -> CapabilityResult:
         try:
-            market_data = context.get("market_data")
-            technical_indicators = context.get("technical_indicators")
-            fundamental_scores = context.get("fundamental_scores")
+            market_data: MarketDataAcquireResult = context.get("market_data")  # type: ignore[assignment]
+            technical_indicators: dict[StockSymbol, TechnicalIndicators] = context.get("technical_indicators")  # type: ignore[assignment]
+            fundamental_scores: dict[StockSymbol, FundamentalScore] = context.get("fundamental_scores")  # type: ignore[assignment]
         except KeyError as e:
             return CapabilityResult.failure(f"Missing required context: {e}")
 
@@ -119,8 +120,8 @@ class MLScoringCapability(Capability):
 
         ml_scores: dict[StockSymbol, MLScore] = {}
         for symbol in market_data.price_history:
-            indicators = technical_indicators.get(symbol) if technical_indicators else None
-            fund_score = fundamental_scores.get(symbol) if fundamental_scores else None
+            indicators: TechnicalIndicators | None = technical_indicators.get(symbol) if technical_indicators else None
+            fund_score: FundamentalScore | None = fundamental_scores.get(symbol) if fundamental_scores else None
             bars = market_data.price_history.get(symbol, [])
 
             features = self._extract_features(symbol, indicators, fund_score, bars)

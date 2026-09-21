@@ -11,11 +11,11 @@ class CapabilityResult:
         self.error = error
 
     @classmethod
-    def success(cls) -> "CapabilityResult":
+    def success(cls) -> CapabilityResult:
         return cls(succeeded=True)
 
     @classmethod
-    def failure(cls, error: str | Exception) -> "CapabilityResult":
+    def failure(cls, error: str | Exception) -> CapabilityResult:
         return cls(
             succeeded=False,
             error=error,

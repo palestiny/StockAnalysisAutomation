@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, date, time, timedelta
+from datetime import date, datetime, time, timedelta
 from typing import Protocol
 from uuid import UUID
 
@@ -8,14 +8,14 @@ from app.application.scheduling import Clock, ScheduledExecutionRequest
 from app.application.stock_analysis_workflow import (
     StockAnalysisWorkflowComposition,
     create_daily_analysis_workflow,
-    create_morning_delivery_workflow,
-    create_default_watchlist,
     create_default_email_config,
     create_default_push_config,
+    create_default_watchlist,
+    create_morning_delivery_workflow,
 )
-from app.domain.workflow import Workflow
-from app.domain.stock_analysis import Watchlist, EmailConfig, PushConfig
 from app.domain.repositories import WorkflowRepository
+from app.domain.stock_analysis import EmailConfig, PushConfig, Watchlist
+from app.domain.workflow import Workflow
 
 
 class TradingCalendar(Protocol):
@@ -131,7 +131,7 @@ class StockAnalysisScheduler:
         if not self._calendar.is_trading_day(today):
             return []
 
-        self.ensure_workflows_published()
+        analysis_id, delivery_id = self.ensure_workflows_published()
 
         requests = []
 
@@ -139,7 +139,7 @@ class StockAnalysisScheduler:
         if self._clock.now() < analysis_time:
             requests.append(
                 ScheduledExecutionRequest.create(
-                    workflow_id=self._analysis_workflow_id,
+                    workflow_id=analysis_id,
                     scheduled_at=analysis_time,
                 )
             )
@@ -152,7 +152,7 @@ class StockAnalysisScheduler:
         if self._clock.now() < delivery_time:
             requests.append(
                 ScheduledExecutionRequest.create(
-                    workflow_id=self._delivery_workflow_id,
+                    workflow_id=delivery_id,
                     scheduled_at=delivery_time,
                 )
             )
@@ -161,6 +161,12 @@ class StockAnalysisScheduler:
 
     def get_schedule_for_range(self, start_date: date, end_date: date) -> list[ScheduledExecutionRequest]:
         """Get all scheduled executions for a date range."""
+        self.ensure_workflows_published()
+        analysis_id = self._analysis_workflow_id
+        delivery_id = self._delivery_workflow_id
+        assert analysis_id is not None
+        assert delivery_id is not None
+
         requests = []
         current = start_date
         while current <= end_date:
@@ -169,7 +175,7 @@ class StockAnalysisScheduler:
                 if self._clock.now() < analysis_time:
                     requests.append(
                         ScheduledExecutionRequest.create(
-                            workflow_id=self._analysis_workflow_id or UUID(int=0),
+                            workflow_id=analysis_id,
                             scheduled_at=analysis_time,
                         )
                     )
@@ -182,9 +188,10 @@ class StockAnalysisScheduler:
                 if self._clock.now() < delivery_time:
                     requests.append(
                         ScheduledExecutionRequest.create(
-                            workflow_id=self._delivery_workflow_id or UUID(int=0),
+                            workflow_id=delivery_id,
                             scheduled_at=delivery_time,
                         )
                     )
             current += timedelta(days=1)
+        return requests
         return requests

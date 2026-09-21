@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-from typing import Protocol
 from uuid import UUID
 
 from app.domain.execution import Execution
 from app.domain.repositories import ExecutionRepository, WorkflowRepository
-from app.domain.workflow import Workflow
 
 
 class StartWorkflowExecution:

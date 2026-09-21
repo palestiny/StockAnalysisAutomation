@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
-from typing import Protocol
 from decimal import Decimal
+from typing import Protocol
 
-from app.domain.stock_analysis import StockSymbol, PriceBar, FundamentalMetrics
+from app.domain.stock_analysis import FundamentalMetrics, PriceBar, StockSymbol
 
 
 @dataclass(frozen=True)

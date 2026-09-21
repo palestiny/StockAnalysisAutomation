@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Dict
 from uuid import UUID
 
 from app.domain.execution import Execution
@@ -18,7 +17,7 @@ from app.domain.workflow import Workflow
 
 class InMemoryWorkflowRepository(WorkflowRepository):
     def __init__(self) -> None:
-        self._workflows: Dict[UUID, Workflow] = {}
+        self._workflows: dict[UUID, Workflow] = {}
 
     def save(self, workflow: Workflow) -> None:
         self._workflows[workflow.id] = workflow
@@ -32,7 +31,7 @@ class InMemoryWorkflowRepository(WorkflowRepository):
 
 class InMemoryExecutionRepository(ExecutionRepository):
     def __init__(self) -> None:
-        self._executions: Dict[UUID, Execution] = {}
+        self._executions: dict[UUID, Execution] = {}
 
     def save(self, execution: Execution) -> None:
         self._executions[execution.id] = execution
@@ -46,7 +45,7 @@ class InMemoryExecutionRepository(ExecutionRepository):
 
 class InMemoryExecutionIdempotencyRepository(ExecutionIdempotencyRepository):
     def __init__(self) -> None:
-        self._records: Dict[str, ExecutionIdempotencyRecord] = {}
+        self._records: dict[str, ExecutionIdempotencyRecord] = {}
 
     def get(self, key: str) -> ExecutionIdempotencyRecord | None:
         return self._records.get(key)
@@ -79,7 +78,7 @@ class InMemoryExecutionIdempotencyRepository(ExecutionIdempotencyRepository):
 
 class InMemoryExecutionHistoryRepository(ExecutionHistoryRepository):
     def __init__(self) -> None:
-        self._events: Dict[UUID, list[ExecutionEvent]] = {}
+        self._events: dict[UUID, list[ExecutionEvent]] = {}
 
     def append(self, event: ExecutionEvent) -> None:
         if event.execution_id not in self._events:

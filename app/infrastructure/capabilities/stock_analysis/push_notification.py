@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Protocol
 
 from app.application.capability import Capability
 from app.application.capability_result import CapabilityResult
 from app.application.execution_context import ExecutionContext
-from app.domain.stock_analysis import Recommendation, Watchlist, PushConfig
-
+from app.domain.stock_analysis import PushConfig, Watchlist
 
 PUSH_NOTIFICATION_CAPABILITY_ID = "push_notification"
 
@@ -70,7 +68,7 @@ class FirebasePushProvider:
                 tokens=list(self._config.user_tokens),
             )
             response = messaging.send_multicast(message)
-            return response.success_count > 0
+            return bool(response.success_count > 0)
         except Exception:
             return False
 
@@ -109,7 +107,7 @@ class OneSignalPushProvider:
 
 def create_push_provider(config: PushConfig) -> PushProvider:
     """Factory to create push provider based on config."""
-    providers = {
+    providers: dict[str, type[PushProvider]] = {
         "ntfy": NtfyPushProvider,
         "firebase": FirebasePushProvider,
         "onesignal": OneSignalPushProvider,
@@ -117,7 +115,7 @@ def create_push_provider(config: PushConfig) -> PushProvider:
     provider_class = providers.get(config.provider.lower())
     if not provider_class:
         raise ValueError(f"Unknown push provider: {config.provider}")
-    return provider_class(config)
+    return provider_class(config)  # type: ignore[call-arg]
 
 
 class PushNotificationCapability(Capability):

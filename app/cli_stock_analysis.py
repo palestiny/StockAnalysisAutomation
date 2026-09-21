@@ -4,30 +4,43 @@
 from __future__ import annotations
 
 import argparse
-import sys
 from datetime import datetime
 from decimal import Decimal
-from uuid import uuid4
 
+from app.application.scheduling import FixedClock
+from app.application.stock_analysis_config import StockAnalysisConfig
+from app.application.stock_analysis_scheduling import StockAnalysisScheduler
 from app.application.stock_analysis_workflow import (
     StockAnalysisWorkflowComposition,
-    create_default_watchlist,
     create_default_email_config,
     create_default_push_config,
+    create_default_watchlist,
 )
-from app.application.stock_analysis_scheduling import StockAnalysisScheduler
-from app.application.stock_analysis_config import StockAnalysisConfig
-from app.infrastructure.capabilities.stock_analysis.market_data_acquire import MarketDataAcquireCapability
-from app.infrastructure.capabilities.stock_analysis.technical_analysis import TechnicalAnalysisCapability
-from app.infrastructure.capabilities.stock_analysis.fundamental_analysis import FundamentalAnalysisCapability
-from app.infrastructure.capabilities.stock_analysis.ml_scoring import MLScoringCapability
-from app.infrastructure.capabilities.stock_analysis.recommendation_generation import RecommendationGenerationCapability
-from app.infrastructure.capabilities.stock_analysis.email_notification import EmailNotificationCapability
-from app.infrastructure.capabilities.stock_analysis.push_notification import PushNotificationCapability
-from app.infrastructure.persistence.in_memory import InMemoryWorkflowRepository, InMemoryExecutionRepository
-from app.application.scheduling import FixedClock
+from app.domain.stock_analysis import Recommendation
 from app.domain.workflow import Workflow
-from app.domain.stock_analysis import EmailConfig, PushConfig
+from app.infrastructure.capabilities.stock_analysis.email_notification import (
+    EmailNotificationCapability,
+)
+from app.infrastructure.capabilities.stock_analysis.fundamental_analysis import (
+    FundamentalAnalysisCapability,
+)
+from app.infrastructure.capabilities.stock_analysis.market_data_acquire import (
+    MarketDataAcquireCapability,
+)
+from app.infrastructure.capabilities.stock_analysis.ml_scoring import MLScoringCapability
+from app.infrastructure.capabilities.stock_analysis.push_notification import (
+    PushNotificationCapability,
+)
+from app.infrastructure.capabilities.stock_analysis.recommendation_generation import (
+    RecommendationGenerationCapability,
+)
+from app.infrastructure.capabilities.stock_analysis.technical_analysis import (
+    TechnicalAnalysisCapability,
+)
+from app.infrastructure.persistence.in_memory import (
+    InMemoryExecutionRepository,
+    InMemoryWorkflowRepository,
+)
 
 
 def run_analysis_now(args):
@@ -93,11 +106,11 @@ def run_analysis_now(args):
     print("[5/5] Generating recommendations...")
     recommendation.execute(exec_context)
 
-    recommendations = exec_context.get("recommendations")
+    recommendations: list[Recommendation] = exec_context.get("recommendations")  # type: ignore[assignment]
     print(f"\n[OK] Analysis complete! Generated {len(recommendations)} recommendations")
 
-    buy_recs = [r for r in recommendations if r.action.value == "buy"]
-    watch_recs = [r for r in recommendations if r.action.value == "watch"]
+    buy_recs: list[Recommendation] = [r for r in recommendations if r.action.value == "buy"]  # type: ignore[misc]
+    watch_recs: list[Recommendation] = [r for r in recommendations if r.action.value == "watch"]  # type: ignore[misc]
 
     if buy_recs:
         print(f"\n[BUY] ({len(buy_recs)}):")
@@ -153,11 +166,11 @@ def run_delivery_now(args):
     delivery_workflow.publish()
     workflow_repo.save(delivery_workflow)
 
-    from app.application.start_workflow_execution import StartWorkflowExecution
-    from app.application.execute_workflow_step import ExecuteWorkflowStep
     from app.application.capability_dispatcher import CapabilityDispatcher
     from app.application.capability_registry import CapabilityRegistry
     from app.application.condition_evaluator import ConditionEvaluator
+    from app.application.execute_workflow_step import ExecuteWorkflowStep
+    from app.application.start_workflow_execution import StartWorkflowExecution
 
     registry = CapabilityRegistry()
     registry.register("email_notification", email)

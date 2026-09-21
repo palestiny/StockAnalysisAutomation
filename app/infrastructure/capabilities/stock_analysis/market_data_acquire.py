@@ -2,15 +2,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date, timedelta
-from decimal import Decimal
-from typing import Protocol
 
 from app.application.capability import Capability
 from app.application.capability_result import CapabilityResult
 from app.application.execution_context import ExecutionContext
-from app.domain.stock_analysis import StockSymbol, PriceBar, FundamentalMetrics, Watchlist
-from app.infrastructure.capabilities.stock_analysis.market_data_provider import MarketDataProvider, MarketDataRequest, YFinanceMarketDataProvider
-
+from app.domain.stock_analysis import FundamentalMetrics, PriceBar, StockSymbol, Watchlist
+from app.infrastructure.capabilities.stock_analysis.market_data_provider import (
+    MarketDataProvider,
+    MarketDataRequest,
+    YFinanceMarketDataProvider,
+)
 
 MARKET_DATA_ACQUIRE_CAPABILITY_ID = "market_data_acquire"
 

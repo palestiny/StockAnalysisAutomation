@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-from collections import deque
+from datetime import date
 from decimal import Decimal
-from math import sqrt
 from typing import Protocol
 
 from app.application.capability import Capability
 from app.application.capability_result import CapabilityResult
 from app.application.execution_context import ExecutionContext
-from app.domain.stock_analysis import StockSymbol, PriceBar, TechnicalIndicators
-from app.infrastructure.capabilities.stock_analysis.market_data_acquire import MarketDataAcquireResult
-
+from app.domain.stock_analysis import PriceBar, StockSymbol, TechnicalIndicators
+from app.infrastructure.capabilities.stock_analysis.market_data_acquire import (
+    MarketDataAcquireResult,
+)
 
 TECHNICAL_ANALYSIS_CAPABILITY_ID = "technical_analysis"
 

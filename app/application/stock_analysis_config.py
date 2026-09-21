@@ -1,13 +1,11 @@
 from __future__ import annotations
 
 import json
-import os
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
-from decimal import Decimal
 
-from app.domain.stock_analysis import Watchlist, WatchlistEntry, EmailConfig, PushConfig
-
+from app.domain.stock_analysis import EmailConfig, PushConfig, Watchlist, WatchlistEntry
 
 DEFAULT_CONFIG_DIR = Path.home() / ".automation_os" / "stock_analysis"
 DEFAULT_CONFIG_FILE = DEFAULT_CONFIG_DIR / "config.json"
@@ -56,7 +54,7 @@ class StockAnalysisConfig:
             return None
 
         try:
-            with open(self._watchlist_file, "r") as f:
+            with open(self._watchlist_file) as f:
                 data = json.load(f)
 
             entries = []
@@ -121,8 +119,8 @@ class StockAnalysisConfig:
         if not self._config_file.exists():
             return {}
         try:
-            with open(self._config_file, "r") as f:
-                return json.load(f)
+            with open(self._config_file) as f:
+                return json.load(f)  # type: ignore[no-any-return]
         except Exception:
             return {}
 

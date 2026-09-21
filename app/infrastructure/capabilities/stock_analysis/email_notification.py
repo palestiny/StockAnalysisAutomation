@@ -1,14 +1,11 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from decimal import Decimal
 from typing import Protocol
 
 from app.application.capability import Capability
 from app.application.capability_result import CapabilityResult
 from app.application.execution_context import ExecutionContext
-from app.domain.stock_analysis import Recommendation, Watchlist, EmailConfig
-
+from app.domain.stock_analysis import EmailConfig, Recommendation, Watchlist
 
 EMAIL_NOTIFICATION_CAPABILITY_ID = "email_notification"
 
@@ -28,8 +25,8 @@ class SMTPEmailProvider:
 
     def send(self, subject: str, body: str, to_emails: tuple[str, ...]) -> bool:
         import smtplib
-        from email.mime.text import MIMEText
         from email.mime.multipart import MIMEMultipart
+        from email.mime.text import MIMEText
 
         try:
             msg = MIMEMultipart()

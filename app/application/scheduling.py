@@ -24,7 +24,7 @@ class ScheduledExecutionRequest:
         cls,
         workflow_id: UUID,
         scheduled_at: datetime,
-    ) -> "ScheduledExecutionRequest":
+    ) -> ScheduledExecutionRequest:
         return cls(workflow_id=workflow_id, scheduled_at=scheduled_at)
 
 
