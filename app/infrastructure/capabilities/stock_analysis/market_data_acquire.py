@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date, timedelta
+from pathlib import Path
 
 from app.application.capability import Capability
 from app.application.capability_result import CapabilityResult
@@ -11,6 +12,11 @@ from app.infrastructure.capabilities.stock_analysis.market_data_provider import 
     MarketDataProvider,
     MarketDataRequest,
     YFinanceMarketDataProvider,
+)
+from app.infrastructure.capabilities.stock_analysis.market_data_cache import (
+    CachedMarketDataProvider,
+    FileCache,
+    create_cached_market_data_provider,
 )
 
 MARKET_DATA_ACQUIRE_CAPABILITY_ID = "market_data_acquire"
@@ -30,9 +36,14 @@ class MarketDataAcquireCapability(Capability):
         self,
         provider: MarketDataProvider | None = None,
         lookback_days: int = 252,
+        cache_dir: Path | None = None,
+        use_cache: bool = True,
     ) -> None:
-        self._provider = provider or YFinanceMarketDataProvider()
         self._lookback_days = lookback_days
+        if use_cache:
+            self._provider: MarketDataProvider = create_cached_market_data_provider(provider, cache_dir)
+        else:
+            self._provider = provider or YFinanceMarketDataProvider()
 
     def execute(self, context: ExecutionContext) -> CapabilityResult:
         try:

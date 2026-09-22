@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 from datetime import datetime
 from decimal import Decimal
+from pathlib import Path
 
 from app.application.scheduling import FixedClock
 from app.application.stock_analysis_config import StockAnalysisConfig
@@ -59,7 +60,10 @@ def run_analysis_now(args):
     workflow_repo = InMemoryWorkflowRepository()
     execution_repo = InMemoryExecutionRepository()
 
-    market_data = MarketDataAcquireCapability()
+    use_cache = not getattr(args, "no_cache", False)
+    print(f"[CACHE] {'enabled' if use_cache else 'disabled'}")
+
+    market_data = MarketDataAcquireCapability(use_cache=use_cache)
     technical = TechnicalAnalysisCapability()
     fundamental = FundamentalAnalysisCapability()
     ml = MLScoringCapability()
@@ -269,6 +273,7 @@ def main():
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     analyze_parser = subparsers.add_parser("analyze", help="Run daily analysis now")
+    analyze_parser.add_argument("--no-cache", action="store_true", help="Disable caching")
     analyze_parser.set_defaults(func=run_analysis_now)
 
     deliver_parser = subparsers.add_parser("deliver", help="Run morning delivery now")
